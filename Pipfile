@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+aws-cdk-lib = "*"
+constructs = "*"
+python-dotenv = "*"
+
+[dev-packages]
+pytest = "*"
+bandit = "*"
+flake8 = "*"
+debugpy = "*"
+mypy = "*"
+flake8-walrus = "*"
+black = "*"
+
+[requires]
+python_version = "3.10"

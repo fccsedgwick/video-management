@@ -1,0 +1,58 @@
+# .pre-commit-config.yaml
+# ========================
+#
+# pre-commit clean
+# pre-commit install
+# pre-commit install-hooks
+#
+# precommit hooks installation
+#
+# - pre-commit autoupdate
+#
+# - pre-commit run black
+#
+# continuous integration
+# ======================
+#
+# - pre-commit run --all-files
+
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: 8fe62d14e0b4d7d845a7022c5c2c3ae41bdd3f26  # frozen: v4.1.0
+  hooks:
+  - id: check-added-large-files
+  - id: check-ast
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-yaml
+  - id: check-json
+  - id: pretty-format-json
+    args: ['--autofix', '--no-ensure-ascii']
+    exclude: Pipfile.lock|cdk.json
+  - id: debug-statements
+  - id: mixed-line-ending
+    args: ['--fix=lf']
+  - id: name-tests-test
+    args: ['--django']
+
+- repo: https://github.com/Yelp/detect-secrets
+  rev: f6027a0521e044ba46e54611cabd787b7a88d1a9  # frozen: v1.1.0
+  hooks:
+  - id: detect-secrets
+    exclude: .pre-commit-config.yaml
+
+- repo: https://github.com/ambv/black
+  rev: f1d4e742c91dd5179d742b0db9293c4472b765f8  # frozen: 21.12b0
+  hooks:
+  - id: black
+    language_version: python3.9
+
+- repo: https://github.com/asottile/blacken-docs
+  rev: 505d32bce506de38b525d374490f36346540d5fa  # frozen: v1.12.0
+  hooks:
+  - id: blacken-docs
+
+- repo: https://github.com/asottile/reorder_python_imports
+  rev: b9af60a0217aedf065f1ce45378d8acb7c002eff  # frozen: v2.6.0
+  hooks:
+  - id: reorder-python-imports
