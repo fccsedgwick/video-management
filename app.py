@@ -11,7 +11,7 @@ load_dotenv()
 app = cdk.App()
 PipelineStack(
     app,
-    "MyPipelineStack",
+    "VideoManagementPipelineStack",
     env=cdk.Environment(
         account=getenv("AWS_PIPELINE_ACCOUNT"), region=getenv("AWS_PIPELINE_REGION")
     ),
