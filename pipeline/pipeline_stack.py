@@ -12,7 +12,6 @@ class PipelineStack(cdk.Stack):
         pipeline = CodePipeline(
             self,
             "Pipeline",
-            pipeline_name="MyPipeline",
             synth=ShellStep(
                 "Synth",
                 input=CodePipelineSource.git_hub(
