@@ -4,8 +4,9 @@ import aws_cdk as cdk
 from aws_cdk.pipelines import CodePipeline
 from aws_cdk.pipelines import CodePipelineSource
 from aws_cdk.pipelines import ShellStep
-from base_infrastructure import BaseInfrastructureStage
 from constructs import Construct
+
+from pipeline.base_infrastructure import BaseInfrastructureStage
 
 
 @dataclass
