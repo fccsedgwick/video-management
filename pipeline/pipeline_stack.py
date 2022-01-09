@@ -11,13 +11,14 @@ from pipeline.base_infrastructure import BaseInfrastructureStage
 
 @dataclass
 class Account:
+    name: str
     id: str
     region: str
 
 
 accounts = []
-accounts.append(Account(id="747096213102", region="us-east-2"))
-accounts.append(Account(id="308828263283", region="us-east-2"))
+accounts.append(Account(name="dev", id="747096213102", region="us-east-2"))
+accounts.append(Account(name="prod", id="308828263283", region="us-east-2"))
 
 
 class PipelineStack(cdk.Stack):
@@ -27,6 +28,7 @@ class PipelineStack(cdk.Stack):
         pipeline = CodePipeline(
             self,
             "Pipeline",
+            cross_account_keys=True,
             synth=ShellStep(
                 "Synth",
                 input=CodePipelineSource.git_hub(
@@ -45,7 +47,7 @@ class PipelineStack(cdk.Stack):
             pipeline.add_stage(
                 BaseInfrastructureStage(
                     self,
-                    "BaseInfrastructure",
+                    f"{account.name}-BaseInfrastructure",
                     env=cdk.Environment(account=account.id, region=account.region),
                 )
             )
