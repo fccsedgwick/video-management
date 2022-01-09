@@ -45,7 +45,7 @@ class PipelineStack(cdk.Stack):
             pipeline.add_stage(
                 BaseInfrastructureStage(
                     self,
-                    "base_infrastructure",
+                    "BaseInfrastructure",
                     env=cdk.Environment(account=account.id, region=account.region),
                 )
             )
