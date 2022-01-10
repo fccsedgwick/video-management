@@ -2,7 +2,7 @@
 import aws_cdk as cdk
 from dotenv import load_dotenv
 
-from pipeline import PipelineStack
+from video_management import PipelineStack
 
 load_dotenv("app.env")
 

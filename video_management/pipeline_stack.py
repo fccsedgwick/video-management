@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-
+from aws_cdk import aws_iam
 from aws_cdk import aws_s3
 from aws_cdk import Environment
 from aws_cdk import Fn
@@ -10,17 +9,10 @@ from aws_cdk.pipelines import CodePipelineSource
 from aws_cdk.pipelines import ShellStep
 from constructs import Construct
 
-from pipeline.base_infrastructure import BaseInfrastructureStage
-from pipeline.video_storage import VideoStorageStage
-
-
-@dataclass
-class Account:
-    name: str
-    id: str
-    region: str
-    logging_bucket_arn: str = None  # type: ignore[assignment]
-    manually_approve_change: bool = False
+from video_management.base_infrastructure import BaseInfrastructureStage
+from video_management.models import Account
+from video_management.video_processing import VideoProcessingStage
+from video_management.video_storage import VideoStorageStage
 
 
 class PipelineStack(Stack):
@@ -35,13 +27,12 @@ class PipelineStack(Stack):
             region="us-east-2",
             manually_approve_change=True,
         )
-
         self._create_pipeline()
         self._create_base_infrastructure(accounts)
         self._create_video_management(accounts["dev"])
         self._create_video_management(accounts["prod"])
 
-    def _create_pipeline(self):
+    def _create_pipeline(self) -> None:
         self.pipeline = CodePipeline(
             self,
             "Pipeline",
@@ -59,7 +50,7 @@ class PipelineStack(Stack):
             ),
         )
 
-    def _create_base_infrastructure(self, accounts: dict):
+    def _create_base_infrastructure(self, accounts: dict) -> None:
         for account in accounts.values():
             stage = BaseInfrastructureStage(
                 self,
@@ -67,32 +58,51 @@ class PipelineStack(Stack):
                 env=Environment(account=account.id, region=account.region),
             )
             self.pipeline.add_stage(stage)
-
-    def _create_video_management(self, account: Account):
-        buckets = self._create_video_storage(account)
-        self._create_video_processing(account, buckets)
-
-    def _create_video_storage(self, account: Account) -> dict:
-        stage = VideoStorageStage(
-            self,
-            f"{account.name}",
-            env=Environment(account=account.id, region=account.region),
-            logging_bucket=aws_s3.Bucket.from_bucket_arn(
+            account.buckets.logging = aws_s3.Bucket.from_bucket_arn(
                 self,
                 id=f"{account.name}LoggingBucket",
                 bucket_arn=Fn.import_value("loggingBucketARN"),
-            ),
+            )
+
+    def _create_video_management(self, account: Account) -> None:
+        self._create_video_storage(account)
+        self._create_video_processing(account)
+
+    def _create_video_storage(self, account: Account) -> None:
+        stage = VideoStorageStage(
+            self,
+            f"{account.name}-VideoStorage",
+            env=Environment(account=account.id, region=account.region),
+            # next line needs a bucket, gets a bucket interface
+            buckets=account.buckets,
         )
         if account.manually_approve_change:
             pre = [pipelines.ManualApprovalStep(f"PromoteTo{account.name}")]
         else:
             pre = None
         self.pipeline.add_stage(stage, pre=pre)
-        buckets = {
-            "upload": stage.upload_bucket_arn,
-            "published": stage.publish_bucket_arn,
-        }
-        return buckets
+        account.buckets.upload = aws_s3.Bucket.from_bucket_arn(  # type: ignore[assignment]
+            self,
+            id=f"{account.name}-UploadBucket",
+            bucket_arn=Fn.import_value("uploadBucketARN"),
+        )
+        account.buckets.publish = aws_s3.Bucket.from_bucket_arn(  # type: ignore[assignment]
+            self,
+            id=f"{account.name}-PublishBucket",
+            bucket_arn=Fn.import_value("publishBucketARN"),
+        )
+        account.publish_role = aws_iam.Role.from_role_arn(  # type: ignore[assignment]
+            self,
+            id=f"{account.name}-PublishRole",
+            role_arn=Fn.import_value("publishRoleARN"),
+        )
 
-    def _create_video_processing(self, account: Account, buckets: dict):
-        pass
+    def _create_video_processing(self, account: Account) -> None:
+        stage = VideoProcessingStage(
+            self,
+            f"{account.name}-VideoProcessing",
+            env=Environment(account=account.id, region=account.region),
+            buckets=account.buckets,
+            publish_role=account.publish_role,
+        )
+        self.pipeline.add_stage(stage)

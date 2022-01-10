@@ -10,10 +10,12 @@ from aws_cdk import Stack
 from aws_cdk import Stage
 from constructs import Construct
 
+from video_management.models import AccountBuckets
+
 
 class VideoStorageStack(Stack):
     def __init__(
-        self, scope: Construct, construct_id: str, logging_bucket: s3.Bucket, **kwargs
+        self, scope: Construct, construct_id: str, buckets: AccountBuckets, **kwargs
     ):
         super().__init__(scope, construct_id, **kwargs)
 
@@ -30,7 +32,7 @@ class VideoStorageStack(Stack):
             "UploadedVideos",
             object_ownership=s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
             enforce_ssl=True,
-            server_access_logs_bucket=logging_bucket,
+            server_access_logs_bucket=buckets.logging,
             server_access_logs_prefix="s3-upload-bucket-videos",
             removal_policy=RemovalPolicy.DESTROY,
             auto_delete_objects=True,
@@ -68,7 +70,7 @@ class VideoStorageStack(Stack):
             "PublishedVideos",
             object_ownership=s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
             enforce_ssl=True,
-            server_access_logs_bucket=logging_bucket,
+            server_access_logs_bucket=buckets.logging,
             server_access_logs_prefix="s3-publish-bucket-videos",
         )
 
@@ -86,26 +88,30 @@ class VideoStorageStack(Stack):
             "cfOutputUploadBucketARN",
             value=upload_bucket.bucket_arn,
             description="Upload bucket for the environment",
-            export_name="uploadBucket",
+            export_name="uploadBucketARN",
         )
         self.publish_bucket_arn = CfnOutput(
             self,
             "cfOutputPublishBucketARN",
             value=publish_bucket.bucket_arn,
             description="Publish bucket for the environment",
-            export_name="publishBucket",
+            export_name="publishBucketARN",
+        )
+        self.publish_role_arn = CfnOutput(
+            self,
+            "cfOutputPublishRoleARN",
+            value=publish_role.role_arn,
+            description="Role for Publishing Lambda",
+            export_name="publishRoleARN",
         )
 
 
 class VideoStorageStage(Stage):
     def __init__(
-        self, scope: Construct, construct_id: str, logging_bucket: s3.Bucket, **kwargs
+        self, scope: Construct, construct_id: str, buckets: AccountBuckets, **kwargs
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         video_storage_stack = VideoStorageStack(
-            self, "VideoStorageStack", logging_bucket=logging_bucket
+            self, "VideoStorageStack", buckets=buckets
         )
-
-        self.upload_bucket_arn = video_storage_stack.upload_bucket_arn
-        self.publish_bucket_arn = video_storage_stack.publish_bucket_arn
