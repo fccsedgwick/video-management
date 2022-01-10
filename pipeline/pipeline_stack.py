@@ -67,7 +67,6 @@ class PipelineStack(Stack):
                 env=Environment(account=account.id, region=account.region),
             )
             self.pipeline.add_stage(stage)
-            account.logging_bucket_arn = stage.logging_bucket_arn
 
     def _create_video_management(self, account: Account):
         buckets = self._create_video_storage(account)
@@ -81,7 +80,7 @@ class PipelineStack(Stack):
             logging_bucket=aws_s3.Bucket.from_bucket_arn(
                 self,
                 id=f"{account.name}LoggingBucket",
-                bucket_arn=Fn.import_value(account.logging_bucket_arn),
+                bucket_arn=Fn.import_value("loggingBucketARN"),
             ),
         )
         if account.manually_approve_change:

@@ -34,7 +34,7 @@ class BaseInfrastructureStack(Stack):
             "cfOutputLoggingBucketARN",
             value=logging_bucket.bucket_arn,
             description="Logging bucket for the environment",
-            export_name="loggingBucket",
+            export_name="loggingBucketARN",
         )
 
 
@@ -44,8 +44,4 @@ class BaseInfrastructureStage(Stage):
 
         base_infrastructure_stack = BaseInfrastructureStack(
             self, "BaseInfrastructureStack"
-        )
-
-        self.logging_bucket_arn = (
-            base_infrastructure_stack.logging_bucket_arn.import_value
         )
