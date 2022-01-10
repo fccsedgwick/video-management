@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3f5d41632e6004a2f5399b5207b3bb2979e73c1c0d848bba0b86567343233753"
+            "sha256": "fcf316de104caf1b9231062839d23b46160fff7f239e7a151bfdaf0bef1b36e3"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -26,11 +26,11 @@
         },
         "aws-cdk-lib": {
             "hashes": [
-                "sha256:998d09df309166983cb0d6b88c49c6a98c1c942dd1c5be15921377bc4b0c3cb6",
-                "sha256:a442d13ec15679ad7d34d21a99ec7eca2a4eee9fc32a10fe269cc44cb99c3ee4"
+                "sha256:7e11bcaa3e9819d5cc2cfed3eaf3653318f77eba2b1c7fb19102701c3f7464fe",
+                "sha256:c502d365e4f33e7e472921a97d08831d5b53cd47f0516e431bb42142878565bf"
             ],
             "index": "pypi",
-            "version": "==2.4.0"
+            "version": "==2.5.0"
         },
         "cattrs": {
             "hashes": [
@@ -39,6 +39,14 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==1.10.0"
+        },
+        "cdk-serverless-clamscan": {
+            "hashes": [
+                "sha256:4c0bdcb226f9713838cb4c378bed8dda2be7820e3566a28ade134793474d8b51",
+                "sha256:ffe33d64b7f544e76258e48872fc5c9a02f0e9fb9229c13ec0d9d57a6dc7af12"
+            ],
+            "index": "pypi",
+            "version": "==2.0.43"
         },
         "constructs": {
             "hashes": [
@@ -50,11 +58,11 @@
         },
         "jsii": {
             "hashes": [
-                "sha256:48e756d51aa010e5eab43b01e090df1cb866a4a92afa22edb12c926ae1be1b06",
-                "sha256:88391756b2a359b05c84886d96620a30578053c557da4080e191cae2f4ab816d"
+                "sha256:32f886e99c06a23943986e9580f553860aabeb91dc3a3520d5b76fef1e631c04",
+                "sha256:c1477f17275d62fbda28ea25c1f0a6cd1d95c1b73dda70835f33e34f0b70ac52"
             ],
             "markers": "python_version ~= '3.6'",
-            "version": "==1.52.0"
+            "version": "==1.52.1"
         },
         "publication": {
             "hashes": [
@@ -142,7 +150,7 @@
                 "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b",
                 "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"
             ],
-            "markers": "platform_system == 'Windows'",
+            "markers": "sys_platform == 'win32'",
             "version": "==0.4.4"
         },
         "debugpy": {

@@ -7,6 +7,7 @@ name = "pypi"
 aws-cdk-lib = "*"
 constructs = "*"
 python-dotenv = "*"
+cdk-serverless-clamscan = "*"
 
 [dev-packages]
 pytest = "*"

@@ -3,7 +3,8 @@ max-line-length = 88
 
 # H101: TODO(NAME) format
 # H301: One import per line (to include no parentheticals either)
-ignore = H101,H301
+# F841: local variable assigne but never used
+ignore = H101,H301,F841
 
 per-file-ignores =
     # imported but unused

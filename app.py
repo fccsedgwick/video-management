@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 from pipeline import PipelineStack
 
-load_dotenv()
+load_dotenv("app.env")
 
 app = cdk.App()
 PipelineStack(
