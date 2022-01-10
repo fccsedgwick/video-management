@@ -86,14 +86,14 @@ class VideoStorageStack(Stack):
             "cfOutputUploadBucketARN",
             value=upload_bucket.bucket_arn,
             description="Upload bucket for the environment",
-            export_name="upload_bucket",
+            export_name="uploadBucket",
         )
         self.publish_bucket_arn = CfnOutput(
             self,
             "cfOutputPublishBucketARN",
             value=publish_bucket.bucket_arn,
             description="Publish bucket for the environment",
-            export_name="publish_bucket",
+            export_name="publishBucket",
         )
 
 

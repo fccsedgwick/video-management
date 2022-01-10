@@ -34,7 +34,7 @@ class BaseInfrastructureStack(Stack):
             "cfOutputLoggingBucketARN",
             value=logging_bucket.bucket_arn,
             description="Logging bucket for the environment",
-            export_name="logging_bucket",
+            export_name="loggingBucket",
         )
 
 
