@@ -89,7 +89,10 @@ class PipelineStack(Stack):
         else:
             pre = None
         self.pipeline.add_stage(stage, pre=pre)
-        buckets = {"upload": stage.upload_bucket, "published": stage.publish_bucket}
+        buckets = {
+            "upload": stage.upload_bucket_arn,
+            "published": stage.publish_bucket_arn,
+        }
         return buckets
 
     def _create_video_processing(self, account: Account, buckets: dict):
