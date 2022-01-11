@@ -4,9 +4,8 @@ import subprocess
 from os import listdir
 from os import mkdir
 from os import path
+from os import remove
 from shutil import move
-from shutil import rmtree
-from tempfile import mkdtemp
 from zipfile import PyZipFile
 
 from aws_cdk import aws_iam as iam
@@ -20,29 +19,29 @@ class PackageLambda:
     def __init__(self, construct: Construct) -> None:
         self._construct = construct
 
-    def _package_lambda(self, lambda_location: str):
-        temp_dir = mkdtemp()
-        zip_temp_dir = path.join(temp_dir, "zip")
-        package_dir = path.join(temp_dir, "packages")
-        mkdir(package_dir)
-        mkdir(zip_temp_dir)
-        zip_file = path.join(zip_temp_dir, "lambda_package.zip")
-        target_zip_file = path.join("./", "lambda_package.zip")
+    def _package_lambda(self, lambda_location: str, target_zip_name: str):
+        packaging_dir = path.join(lambda_location, ".packaging")
+        packages_dir = path.join(packaging_dir, "packages")
+        if not path.isdir(packaging_dir):
+            mkdir(packaging_dir)
+            mkdir(packages_dir)
+
+        zip_file = path.join(packaging_dir, "lambda_package.zip")
+        target_zip_file = path.join("./", target_zip_name)
 
         for requirement in self._get_requirements_from_Pipfile(lambda_location):
             subprocess.run(
-                ["bash", "-c", f"pip install -t '{package_dir}' '{requirement}'"],
+                ["bash", "-c", f"pip install -t '{packages_dir}' '{requirement}'"],
                 shell=True,
             )  # nosec
         with PyZipFile(zip_file, "x", optimize=2) as lambda_zip:
-            for x in listdir(package_dir):
-                lambda_zip.write(path.join(package_dir, x))
+            for x in listdir(packages_dir):
+                lambda_zip.write(path.join(packages_dir, x))
             lambda_zip.write(
                 path.join(lambda_location, "lambda_function.py"),
                 arcname="lambda_function.py",
             )
         move(zip_file, target_zip_file)
-        rmtree(temp_dir)
         return target_zip_file
 
     def _get_requirements_from_Pipfile(self, location: str) -> list:
@@ -61,8 +60,10 @@ class PackageLambda:
             requirement_versions = requirements
         return requirement_versions
 
-    def create_function(self, lambda_location: str, role: iam.Role) -> lambda_.Function:
-        temp_file = self._package_lambda(lambda_location)
+    def create_function(
+        self, lambda_location: str, role: iam.Role, function_name: str
+    ) -> lambda_.Function:
+        temp_file = self._package_lambda(lambda_location, f"{function_name}.zip")
         signing_profile = signer.SigningProfile(
             self._construct,
             "SigningProfile",
@@ -73,7 +74,7 @@ class PackageLambda:
             self._construct, "CodeSigningConfig", signing_profiles=[signing_profile]
         )
 
-        return lambda_.Function(
+        new_lambda = lambda_.Function(
             self._construct,
             "videoPublishingFunction",
             code_signing_config=code_signing_config,
@@ -83,3 +84,7 @@ class PackageLambda:
             code=lambda_.Code.from_asset(temp_file),
             role=role,
         )
+
+        remove(temp_file)
+
+        return new_lambda

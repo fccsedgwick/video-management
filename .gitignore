@@ -136,4 +136,5 @@ dmypy.json
 .cdk.staging
 cdk.out
 cdk.context.json
-lambda_package.zip
+
+.packaging

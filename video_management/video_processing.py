@@ -35,6 +35,7 @@ class VideoProcessing:
         self.publish_lambda = PackageLambda(self._construct).create_function(
             lambda_location="video_management/lambda_functions/publish_lambda/",
             role=publish_role,
+            function_name="publish_lambda",
         )
         self.publish_lambda.add_environment("SOURCE_BUCKET", upload_bucket.bucket_name)
         self.publish_lambda.add_environment("DEST_BUCKET", publish_bucket.bucket_name)
