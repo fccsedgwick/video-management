@@ -1,0 +1,12 @@
+[flake8]
+max-line-length = 88
+
+# H101: TODO(NAME) format
+# H301: One import per line (to include no parentheticals either)
+ignore = H101,H301
+
+per-file-ignores =
+    # imported but unused
+    __init__.py: F401
+
+extend-ignore = E203

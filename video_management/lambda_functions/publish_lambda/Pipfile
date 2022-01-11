@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+boto3 = "*"
+jsonschema = "*"
+
+[dev-packages]
+pytest = "*"
+bandit = "*"
+flake8 = "*"
+mypy = "*"
+debugpy = "*"
+black = "*"
+flake8-walrus = "*"
+
+[requires]
+python_version = "3.9"

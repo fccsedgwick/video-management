@@ -1,7 +1,5 @@
 from aws_cdk import aws_s3 as s3
-from aws_cdk import CfnOutput
 from aws_cdk import Stack
-from aws_cdk import Stage
 from constructs import Construct
 
 
@@ -22,26 +20,9 @@ class BaseInfrastructureStack(Stack):
         """
         super().__init__(scope, construct_id, **kwargs)
 
-        logging_bucket = s3.Bucket(
+        self.logging_bucket = s3.Bucket(
             self,
             "Logging",
             object_ownership=s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
             enforce_ssl=True,
-        )
-
-        self.logging_bucket_arn = CfnOutput(
-            self,
-            "cfOutputLoggingBucketARN",
-            value=logging_bucket.bucket_arn,
-            description="Logging bucket for the environment",
-            export_name="loggingBucketARN",
-        )
-
-
-class BaseInfrastructureStage(Stage):
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
-        super().__init__(scope, construct_id, **kwargs)
-
-        base_infrastructure_stack = BaseInfrastructureStack(
-            self, "BaseInfrastructureStack"
         )
