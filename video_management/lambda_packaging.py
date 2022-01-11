@@ -33,6 +33,8 @@ class PackageLambda:
             subprocess.run(
                 ["bash", "-c", f"pip install -t '{packages_dir}' '{requirement}'"],
                 shell=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
             )  # nosec
         with PyZipFile(zip_file, "x", optimize=2) as lambda_zip:
             for x in listdir(packages_dir):
