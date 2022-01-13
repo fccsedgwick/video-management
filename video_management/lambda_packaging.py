@@ -38,7 +38,12 @@ class PackageLambda:
             )  # nosec
         with PyZipFile(zip_file, "x", optimize=2) as lambda_zip:
             for x in listdir(packages_dir):
-                lambda_zip.write(path.join(packages_dir, x))
+                source_path = path.join(packages_dir, x)
+                lambda_zip.write(source_path, arcname=f"packages/{x}")
+                if path.isdir(source_path):
+                    for y in listdir(source_path):
+                        filename = path.join(source_path, y)
+                        lambda_zip.write(filename, arcname=f"packages/{x}/{y}")
             lambda_zip.write(
                 path.join(lambda_location, "lambda_function.py"),
                 arcname="lambda_function.py",
