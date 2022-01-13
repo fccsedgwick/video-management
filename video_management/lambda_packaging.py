@@ -1,6 +1,7 @@
 import configparser
 import json
 import subprocess
+from email.policy import Policy
 from os import listdir
 from os import mkdir
 from os import path
@@ -74,6 +75,12 @@ class PackageLambda:
 
         code_signing_config = lambda_.CodeSigningConfig(
             self._construct, "CodeSigningConfig", signing_profiles=[signing_profile]
+        )
+
+        role.add_managed_policy(
+            iam.ManagedPolicy.from_aws_managed_policy_name(
+                "AWSLambdaBasicExecutionRole"
+            )
         )
 
         new_lambda = lambda_.Function(
