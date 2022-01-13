@@ -85,6 +85,7 @@ class PackageLambda:
             handler="lambda_function.lambda_handler",
             code=lambda_.Code.from_asset(temp_file),
             role=role,
+            description="Function to move video from uploaded to published bucket",
         )
 
         remove(temp_file)

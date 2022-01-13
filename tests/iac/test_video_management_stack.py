@@ -53,11 +53,13 @@ solution_known_resource_types = [
     "AWS::S3::Bucket",
     "AWS::S3::BucketPolicy",
     "AWS::Signer::SigningProfile",
+    "AWS::SQS::Queue",
     "AWS::SSM::Parameter",
     "Custom::LogRetention",
     "Custom::S3AutoDeleteObjects",
     "Custom::S3BucketNotifications",
 ]
+
 
 ResourceType = namedtuple("ResourceType", ["name", "type"])
 
@@ -219,17 +221,26 @@ def test_clamscan_notifications_to_publishing_lambda(
     ]
     assert len(publishing_lambdas) == 1
     publishing_lambda = publishing_lambdas[0].name
+
+    dlqs = [
+        x
+        for x in non_clamscan_resources_and_types
+        if x.type == "AWS::SQS::Queue" and x.name.startswith("DeadLetterQueue")
+    ]
+    assert len(dlqs) == 1
+    dead_letter_queue = dlqs[0].name
+
     video_management_template.has_resource_properties(
         "AWS::Lambda::EventInvokeConfig",
         {
             "FunctionName": {"Ref": Match.any_value()},
             "Qualifier": "$LATEST",
             "DestinationConfig": {
-                "OnFailure": {
-                    "Destination": {"Fn::GetAtt": [publishing_lambda, "Arn"]}
-                },
                 "OnSuccess": {
                     "Destination": {"Fn::GetAtt": [publishing_lambda, "Arn"]}
+                },
+                "OnFailure": {
+                    "Destination": {"Fn::GetAtt": [dead_letter_queue, "Arn"]}
                 },
             },
         },
@@ -254,14 +265,14 @@ def test_clamscan_notifications_to_publishing_lambda(
 #         if x.type == "AWS::S3::Bucket" and x.name.startswith("PublishedVideos")
 #     ][0]
 
-#     publish_lambdas = [
+#     post_video_lambdas = [
 #         x.name
 #         for x in resources_and_types
 #         if x.type == "AWS::Lambda::Function"
 #         and x.name.startswith("PostVideos")
 #     ]
-#     assert len(publish_lambdas) == 1
-#     publish_lambda = publish_lambdas[0]
+#     assert len(post_video_lambdas) == 1
+#     post_video_lambda = post_video_lambdas[0]
 
 #     # The notification is for object uploads and sends to the posting lambda
 #     video_management_template.has_resource_properties(
@@ -273,7 +284,7 @@ def test_clamscan_notifications_to_publishing_lambda(
 #                 "LambdaFunctionConfigurations": [
 #                     {
 #                         "Events": ["s3:ObjectCreated:*"],
-#                         "LambdaFunctionArn": {"Fn::GetAtt": [publish_lambda, "Arn"]},
+#                         "LambdaFunctionArn": {"Fn::GetAtt": [post_video_lambda, "Arn"]},
 #                     }
 #                 ]
 #             },
