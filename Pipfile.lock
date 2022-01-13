@@ -50,11 +50,11 @@
         },
         "constructs": {
             "hashes": [
-                "sha256:4e77464463e0d07a62258aabd754ce3a456ea7016500b528ad949ee23257407d",
-                "sha256:58875f7211a8a97fa3f0456e916dac1bb858ed3d91b561755f7844d10ac69d84"
+                "sha256:433dd73698573c57044ee11f815f701fbe42816db120d11830be958a1628d5f9",
+                "sha256:6c9c41388d3c5fb306965bca6b1e38d668c2d012b569a8887466480575a76a70"
             ],
             "index": "pypi",
-            "version": "==10.0.29"
+            "version": "==10.0.30"
         },
         "jsii": {
             "hashes": [
@@ -206,11 +206,11 @@
         },
         "gitpython": {
             "hashes": [
-                "sha256:4f8b0e51713642b83f1eb10136d36a7f2c5278d188c5ae82b144cb1f4e848f0c",
-                "sha256:b923e8952c2fe0d70b129fddd8511acc90b3070c8dddb20d86ca9911a5d0c248"
+                "sha256:26ac35c212d1f7b16036361ca5cff3ec66e11753a0d677fb6c48fa4e1a9dd8d6",
+                "sha256:fc8868f63a2e6d268fb25f481995ba185a85a66fcad126f039323ff6635669ee"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==3.1.25"
+            "version": "==3.1.26"
         },
         "iniconfig": {
             "hashes": [
