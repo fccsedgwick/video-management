@@ -79,8 +79,8 @@ class PackageLambda:
         role.add_managed_policy(
             iam.ManagedPolicy.from_managed_policy_arn(
                 self._construct,
-                "PublishingLambddaAWSLambdaBasicExecutionRole"
-                "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+                "PublishingLambddaAWSLambdaBasicExecutionRole",
+                managed_policy_arn="arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
             )
         )
 
