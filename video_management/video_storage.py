@@ -37,6 +37,7 @@ class VideoStorage:
             server_access_logs_prefix="s3-upload-bucket-videos",
             removal_policy=RemovalPolicy.DESTROY,
             auto_delete_objects=True,
+            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
         )
 
         self.upload_bucket.grant_put(self.upload_role)
