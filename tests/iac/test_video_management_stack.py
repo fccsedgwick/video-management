@@ -80,6 +80,17 @@ def non_clamscan_resources_and_types(resources_and_types) -> list[ResourceType]:
     return non_clamscan_resources_and_types
 
 
+@pytest.fixture
+def upload_bucket_name(non_clamscan_resources_and_types):
+    upload_bucket_names = [
+        x.name
+        for x in non_clamscan_resources_and_types
+        if x.type == "AWS::S3::Bucket" and x.name.startswith("UploadedVideos")
+    ]
+    assert len(upload_bucket_names) == 1
+    return upload_bucket_names[0]
+
+
 def test_resources_are_known_types(resources_and_types):
     for x in resources_and_types:
         if x.name.startswith("ClamScan"):
@@ -142,8 +153,23 @@ def test_roles_created(non_clamscan_resources_and_types):
         assert x.name.startswith(x)
 
 
+def test_upload_bucket_blocks_public_access(
+    upload_bucket_name, video_management_template
+):
+    bucket = video_management_template.to_json()["Resources"][upload_bucket_name]
+    assert bucket["Properties"]["PublicAccessBlockConfiguration"] == {
+        "BlockPublicAcls": True,
+        "BlockPublicPolicy": True,
+        "IgnorePublicAcls": True,
+        "RestrictPublicBuckets": True,
+    }
+
+
 def test_upload_bucket_notifications_to_clamscan_on_object_upload(
-    non_clamscan_resources_and_types, resources_and_types, video_management_template
+    non_clamscan_resources_and_types,
+    resources_and_types,
+    video_management_template,
+    upload_bucket_name,
 ):
     # There is a notification
     upload_video_notifications = [
@@ -153,12 +179,6 @@ def test_upload_bucket_notifications_to_clamscan_on_object_upload(
         and x.name.startswith("UploadedVideosNotifications")
     ]
     assert len(upload_video_notifications) == 1
-
-    upload_bucket = [
-        x.name
-        for x in non_clamscan_resources_and_types
-        if x.type == "AWS::S3::Bucket" and x.name.startswith("UploadedVideos")
-    ][0]
 
     clamscan_lambdas = [
         x.name
@@ -174,7 +194,7 @@ def test_upload_bucket_notifications_to_clamscan_on_object_upload(
         "Custom::S3BucketNotifications",
         {
             "ServiceToken": {"Fn::GetAtt": [Match.any_value(), "Arn"]},
-            "BucketName": {"Ref": upload_bucket},
+            "BucketName": {"Ref": upload_bucket_name},
             "NotificationConfiguration": {
                 "LambdaFunctionConfigurations": [
                     {
