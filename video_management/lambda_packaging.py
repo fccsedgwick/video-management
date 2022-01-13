@@ -1,7 +1,6 @@
 import configparser
 import json
 import subprocess
-from email.policy import Policy
 from os import listdir
 from os import mkdir
 from os import path
@@ -78,8 +77,10 @@ class PackageLambda:
         )
 
         role.add_managed_policy(
-            iam.ManagedPolicy.from_aws_managed_policy_name(
-                "AWSLambdaBasicExecutionRole"
+            iam.ManagedPolicy.from_managed_policy_arn(
+                self._construct,
+                "PublishingLambddaAWSLambdaBasicExecutionRole"
+                "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
             )
         )
 
