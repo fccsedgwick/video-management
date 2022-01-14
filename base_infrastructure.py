@@ -25,4 +25,5 @@ class BaseInfrastructureStack(Stack):
             "Logging",
             object_ownership=s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
             enforce_ssl=True,
+            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
         )
