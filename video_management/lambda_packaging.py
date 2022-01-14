@@ -107,6 +107,6 @@ class PackageLambda:
             description="Function to move video from uploaded to published bucket",
         )
 
-        # remove(temp_file)
+        remove(temp_file)
 
         return new_lambda
