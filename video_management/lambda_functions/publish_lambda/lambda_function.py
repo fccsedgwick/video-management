@@ -6,7 +6,7 @@ import boto3
 from jsonschema import validate
 
 SCHEMA = {
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "serverless-clamscan-output",
     "description": "successful clamscan output: https://github.com/awslabs/cdk-serverless-clamscan/blob/main/API.md",
     "type": "object",
@@ -14,7 +14,7 @@ SCHEMA = {
         "source": {
             "description": "Source of the event",
             "type": "string",
-            "enum": ["serverless-clamscan"],
+            "const": "serverless-clamscan",
         },
         "input_bucket": {
             "description": "S3 bucket holding the scanned object",
@@ -49,9 +49,9 @@ def lambda_handler(event: str, context) -> None:
     print("## Context")
     print(context)
 
-    validate(event, SCHEMA)
+    av_event = loads(event)["responsePayload"]
 
-    av_event = loads(event)
+    validate(av_event, SCHEMA)
 
     if av_event["input_bucket"] != getenv("SOURCE_BUCKET"):
         raise ValueError("Unexpected bucket received")
