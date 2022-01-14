@@ -214,21 +214,21 @@ def test_clamscan_notifications_to_publishing_lambda(
     non_clamscan_resources_and_types, video_management_template
 ):
     publishing_lambdas = [
-        x
+        x.name
         for x in non_clamscan_resources_and_types
         if x.type == "AWS::Lambda::Function"
         and x.name.startswith("videoPublishingFunction")
     ]
     assert len(publishing_lambdas) == 1
-    publishing_lambda = publishing_lambdas[0].name
+    publishing_lambda = publishing_lambdas[0]
 
-    dlqs = [
-        x
+    dead_letter_queues = [
+        x.name
         for x in non_clamscan_resources_and_types
         if x.type == "AWS::SQS::Queue" and x.name.startswith("DeadLetterQueue")
     ]
-    assert len(dlqs) == 1
-    dead_letter_queue = dlqs[0].name
+    assert len(dead_letter_queues) == 1
+    dead_letter_queue = dead_letter_queues[0]
 
     video_management_template.has_resource_properties(
         "AWS::Lambda::EventInvokeConfig",
