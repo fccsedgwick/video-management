@@ -1,18 +1,22 @@
 import configparser
 import json
 import subprocess
-from os import listdir
 from os import mkdir
 from os import path
 from os import remove
+from os import walk
 from shutil import move
-from zipfile import PyZipFile
+from zipfile import ZIP_DEFLATED
+from zipfile import ZipFile
 
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_signer as signer
 from aws_cdk.aws_logs import RetentionDays
 from constructs import Construct
+
+# from struct import pack
+# from os import listdir
 
 
 class PackageLambda:
@@ -36,20 +40,22 @@ class PackageLambda:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )  # nosec
-        with PyZipFile(zip_file, "x", optimize=2) as lambda_zip:
-            for x in listdir(packages_dir):
-                source_path = path.join(packages_dir, x)
-                lambda_zip.write(source_path, arcname=f"packages/{x}")
-                if path.isdir(source_path):
-                    for y in listdir(source_path):
-                        filename = path.join(source_path, y)
-                        lambda_zip.write(filename, arcname=f"packages/{x}/{y}")
+        with ZipFile(zip_file, mode="x", compression=ZIP_DEFLATED) as lambda_zip:
+            self._zip_dir(packages_dir, lambda_zip)
             lambda_zip.write(
                 path.join(lambda_location, "lambda_function.py"),
                 arcname="lambda_function.py",
             )
         move(zip_file, target_zip_file)
         return target_zip_file
+
+    def _zip_dir(self, dir_path, zip_file_handle):
+        for root, dirs, files in walk(dir_path):
+            for file in files:
+                zip_file_handle.write(
+                    path.join(root, file),
+                    arcname=path.join(root.replace(dir_path, ""), file),
+                )
 
     def _get_requirements_from_Pipfile(self, location: str) -> list:
         pipfile = configparser.ConfigParser()
@@ -101,6 +107,6 @@ class PackageLambda:
             description="Function to move video from uploaded to published bucket",
         )
 
-        remove(temp_file)
+        # remove(temp_file)
 
         return new_lambda
