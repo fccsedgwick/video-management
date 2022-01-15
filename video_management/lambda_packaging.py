@@ -37,8 +37,8 @@ class PackageLambda:
             subprocess.run(
                 ["bash", "-c", f"pip install -t '{packages_dir}' '{requirement}'"],
                 shell=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                # stdout=subprocess.DEVNULL,
+                # stderr=subprocess.DEVNULL,
             )  # nosec
         with ZipFile(zip_file, mode="x", compression=ZIP_DEFLATED) as lambda_zip:
             self._zip_dir(packages_dir, lambda_zip)
@@ -107,6 +107,6 @@ class PackageLambda:
             description="Function to move video from uploaded to published bucket",
         )
 
-        remove(temp_file)
+        # remove(temp_file)
 
         return new_lambda
