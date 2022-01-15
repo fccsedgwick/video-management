@@ -15,9 +15,6 @@ from aws_cdk import aws_signer as signer
 from aws_cdk.aws_logs import RetentionDays
 from constructs import Construct
 
-# from struct import pack
-# from os import listdir
-
 
 class PackageLambda:
     def __init__(self, construct: Construct) -> None:

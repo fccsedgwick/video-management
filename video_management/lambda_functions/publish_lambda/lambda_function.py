@@ -78,8 +78,8 @@ def delete_file(object) -> bool:
 
 def move_video_to_published(s3: boto3.session.Session.resource, key) -> bool:
     destination_object = get_destination_object(s3, key)
-    source_object = s3.Object(getenv("SOURCE_BUCKET"), key)
-    response = destination_object.copy_from(source_object)
+    source_object = {"Bucket": getenv("SOURCE_BUCKET"), "Key": key}
+    response = destination_object.copy(source_object)
     if response["ResponseMetadata"]["HTTPStatusCode"] == 204:
         print(f"New file created: {str(destination_object)}")
         return delete_file(source_object)
