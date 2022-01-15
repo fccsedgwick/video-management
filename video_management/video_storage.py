@@ -86,3 +86,4 @@ class VideoStorage:
             )
         )
         self.publish_bucket.grant_put(self.publish_role)
+        self.publish_bucket.grant_read(self.publish_role)
