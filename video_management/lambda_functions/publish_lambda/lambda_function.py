@@ -1,4 +1,3 @@
-from json import loads
 from os import getenv
 from uuid import uuid4
 
@@ -32,7 +31,7 @@ SCHEMA = {
 }
 
 
-def lambda_handler(event: str, context) -> None:
+def lambda_handler(event: dict, context) -> None:
     """Main Lambda handler.
 
     Args:
@@ -49,7 +48,7 @@ def lambda_handler(event: str, context) -> None:
     print("## Context")
     print(context)
 
-    av_event = loads(event)["responsePayload"]
+    av_event = event["responsePayload"]
 
     validate(av_event, SCHEMA)
 
