@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 boto3 = "*"
-jsonschema = "*"
+pydantic = "*"
 
 [dev-packages]
 pytest = "*"
@@ -15,6 +15,10 @@ mypy = "*"
 debugpy = "*"
 black = "*"
 flake8-walrus = "*"
+localstack = "*"
+awscli-local = "*"
+docker-compose = "*"
+pytest-docker = "*"
 
 [requires]
 python_version = "3.9"

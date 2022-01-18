@@ -1,102 +1,112 @@
+import logging
+from enum import Enum
 from os import getenv
+from sys import stdout
 from uuid import uuid4
 
 import boto3
-from jsonschema import validate
+from pydantic.dataclasses import dataclass
 
-SCHEMA = {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "serverless-clamscan-output",
-    "description": "successful clamscan output: https://github.com/awslabs/cdk-serverless-clamscan/blob/main/API.md",
-    "type": "object",
-    "properties": {
-        "source": {
-            "description": "Source of the event",
-            "type": "string",
-            "const": "serverless-clamscan",
-        },
-        "input_bucket": {
-            "description": "S3 bucket holding the scanned object",
-            "type": "string",
-        },
-        "input_key": {"description": "object that was scanned", "type": "string"},
-        "status": {
-            "description": "scan output",
-            "type": "string",
-            "enum": ["CLEAN", "INFECTED", "N/A"],
-        },
-        "message": {"description": "clamav message - not used", "type": "string"},
-    },
-    "required": ["source", "input_bucket", "input_key", "status", "message"],
-}
+
+class ClamScanStatus(Enum):
+    CLEAN = "CLEAN"
+    INFECTED = "INFECTED"
+    UNKNOWN = "N/A"
+
+
+class ClamScanSource(Enum):
+    SERVERLESS_CLAMSCAN = "serverless-clamscan"
+
+
+@dataclass
+class ClamScanPayload:
+    source: ClamScanSource
+    input_bucket: str
+    input_key: str
+    status: ClamScanStatus
+    message: str
+
+
+@dataclass
+class ClamScanNotificationEvent:
+    version: str
+    timestamp: str
+    requestContext: object
+    requestPayload: object
+    responseContext: object
+    responsePayload: ClamScanPayload
+
+
+logging.basicConfig(
+    level=getattr(logging, getenv("LOGGING", "WARN").upper(), logging.INFO)
+)
+logger = logging.getLogger("post_video")
+logger.addHandler(logging.StreamHandler(stdout))
+
+
+def load_event(event: dict) -> ClamScanPayload:
+    scan_event = ClamScanNotificationEvent(**event)
+
+    if scan_event.responsePayload.input_bucket != getenv("SOURCE_BUCKET"):
+        raise ValueError("Unexpected bucket received")
+    return scan_event.responsePayload
 
 
 def lambda_handler(event: dict, context) -> None:
-    """Main Lambda handler.
+    logger.debug(f"Event: {event}")
+    logger.debug(f"Context: {context}")
 
-    Args:
-        event ([type]): event object that fired the lambda (from API GW) context
-                        ([type]): additional context for the lambda passed in by AWS
+    scan_event = load_event(event)
 
-    Returns:
-        OembedResponse: oEmbed response in either json or xml format as requested by
-                        the consumer
-    """
-    print("## Event")
-    print(event)
-
-    print("## Context")
-    print(context)
-
-    av_event = event["responsePayload"]
-
-    validate(av_event, SCHEMA)
-
-    if av_event["input_bucket"] != getenv("SOURCE_BUCKET"):
-        raise ValueError("Unexpected bucket received")
-
-    s3 = boto3.resource("s3")
-    source_object = s3.Object(getenv("SOURCE_BUCKET"), av_event["input_key"])
-
-    if av_event["status"] == "CLEAN":
-        move_video_to_published(s3, av_event["input_key"])
-    elif av_event["status"] == "INFECTED":
-        delete_file(source_object)
+    if scan_event.status == ClamScanStatus.CLEAN:
+        PublishLambda().move_video_to_published(scan_event)
+    elif scan_event.status == ClamScanStatus.INFECTED:
+        PublishLambda().delete_file(scan_event)
     else:
-        print("Unknown ClamAV status: N/A")
+        raise ValueError("Unknown ClamAV status: N/A")
 
 
-def delete_file(object) -> bool:
-    response = object.delete()
-    if response["ResponseMetadata"]["HTTPStatusCode"] == 204:
-        print(f"file deleted: {str(object)}")
+class PublishLambda:
+    def __init__(self):
+        self.s3 = boto3.resource("s3", endpoint_url=getenv("AWS_ENDPOINT"))
+
+    def delete_file(self, scan_event: ClamScanPayload) -> bool:
+        delete_object = self.s3.Object(scan_event.input_bucket, scan_event.input_key)
+        response = delete_object.delete()
+        return response["ResponseMetadata"]["HTTPStatusCode"] == 204
+
+    def copy_file(self, scan_event: ClamScanPayload, key: str) -> None:
+        source_object_dict = {
+            "Bucket": scan_event.input_bucket,
+            "Key": scan_event.input_key,
+        }
+        self.s3.Object(getenv("DEST_BUCKET"), key).copy(source_object_dict)
+
+    def copy_tags(self, scan_event: ClamScanPayload, key: str) -> None:
+        tagset = self.s3.meta.client.get_object_tagging(
+            Bucket=scan_event.input_bucket, Key=scan_event.input_key
+        )["TagSet"]
+        if len(tagset) != 0:
+            self.s3.meta.client.put_object_tagging(
+                Bucket=getenv("DEST_BUCKET"), Key=key, Tagging={"TagSet": tagset}
+            )
+
+    def move_video_to_published(self, scan_event: ClamScanPayload) -> bool:
+        destination_key = self.get_unique_filename(scan_event.input_key)
+        self.copy_file(scan_event, destination_key)
+        logger.debug(f"Created new file: {destination_key}")
+        self.copy_tags(scan_event, destination_key)
+        if not self.delete_file(scan_event):
+            logger.warn(f"Failed to delete file. {scan_event.input_key}")
+            return False
         return True
-    else:
-        print(f"Failed to deleted: {str(object)}")
-        return False
 
-
-def move_video_to_published(s3: boto3.session.Session.resource, key) -> bool:
-    destination_object = get_destination_object(s3, key)
-    source_object = {"Bucket": getenv("SOURCE_BUCKET"), "Key": key}
-    response = destination_object.copy(source_object)
-    if response["ResponseMetadata"]["HTTPStatusCode"] == 204:
-        print(f"New file created: {str(destination_object)}")
-        return delete_file(source_object)
-    else:
-        print(f"Failed to create new file. Leaving {str(source_object)}")
-        return False
-
-
-def get_destination_object(s3: boto3.session.Session.resource, key):
-    return s3.Object(getenv("DEST_BUCKET"), get_unique_filename(key))
-
-
-def get_unique_filename(proposed_filename: str) -> str:
-    filename = f"{uuid4().hex}_{proposed_filename.replace(' ', '_')}"
-
-    client = boto3.client("s3")
-    while filename in client.list_objects(Bucket=getenv("DEST_BUCKET")):
+    def get_unique_filename(self, proposed_filename: str) -> str:
         filename = f"{uuid4().hex}_{proposed_filename.replace(' ', '_')}"
-    print(f"S3 Key to use for upload: {filename}")
-    return filename
+
+        while filename in self.s3.meta.client.list_objects(
+            Bucket=getenv("DEST_BUCKET")
+        ):
+            filename = f"{uuid4().hex}_{proposed_filename.replace(' ', '_')}"
+        logger.debug(f"S3 Key to use for upload: {filename}")
+        return filename
