@@ -59,15 +59,6 @@ class VideoStorage:
         )
         bucket_param.grant_read(self.upload_role)
 
-        wp_param = ssm.StringParameter.from_secure_string_parameter_attributes(
-            self._construct,
-            "VideoPublishWPInfo",
-            # null values here should break pipeline
-            version=int(getenv("WPPARAMETERVERSION")),  # type: ignore[arg-type]
-            parameter_name=getenv("WPPARAMETER"),  # type: ignore[arg-type]
-        )
-        wp_param.grant_read(self.publish_role)
-
     def _create_publish_bucket(self, logging_bucket: s3.Bucket):
         self.publish_bucket = s3.Bucket(
             self._construct,

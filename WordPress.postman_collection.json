@@ -1,0 +1,124 @@
+{
+  "auth": {
+    "bearer": [
+      {
+        "key": "token",
+        "type": "string",
+        "value": "{{access_token}}"
+      }
+    ],
+    "type": "bearer"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          ""
+        ],
+        "type": "text/javascript"
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          ""
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "info": {
+    "_postman_id": "e66eb203-9a0d-4085-8af6-341ce06a7f4a",
+    "name": "WordPress",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.environment.set(\"access_token\", pm.response.json().access_token)"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "name": "Login",
+      "request": {
+        "body": {
+          "formdata": [
+            {
+              "key": "client_id",
+              "type": "text",
+              "value": "{{client_id}}"
+            },
+            {
+              "key": "client_secret",
+              "type": "text",
+              "value": "{{client_secret}}"
+            },
+            {
+              "key": "username",
+              "type": "text",
+              "value": "{{username}}"
+            },
+            {
+              "key": "password",
+              "type": "text",
+              "value": "{{password}}"
+            },
+            {
+              "key": "grant_type",
+              "type": "text",
+              "value": "password"
+            }
+          ],
+          "mode": "formdata"
+        },
+        "header": [],
+        "method": "POST",
+        "url": {
+          "host": [
+            "public-api",
+            "wordpress",
+            "com"
+          ],
+          "path": [
+            "oauth2",
+            "token"
+          ],
+          "protocol": "https",
+          "raw": "https://public-api.wordpress.com/oauth2/token"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "WordPress Site Info by domain name",
+      "request": {
+        "header": [],
+        "method": "GET",
+        "url": {
+          "host": [
+            "public-api",
+            "wordpress",
+            "com"
+          ],
+          "path": [
+            "rest",
+            "v1.1",
+            "sites",
+            "{{wordpress_site_domain}}"
+          ],
+          "protocol": "https",
+          "raw": "https://public-api.wordpress.com/rest/v1.1/sites/{{wordpress_site_domain}}"
+        }
+      },
+      "response": []
+    }
+  ]
+}

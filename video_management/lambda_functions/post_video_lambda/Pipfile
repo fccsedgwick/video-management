@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 boto3 = "*"
 pydantic = "*"
+requests = "*"
 
 [dev-packages]
 pytest = "*"
@@ -15,11 +16,16 @@ mypy = "*"
 debugpy = "*"
 black = "*"
 flake8-walrus = "*"
+types-requests = "*"
 localstack = "*"
 awscli-local = "*"
 docker-compose = "*"
 pytest-docker = "*"
 pytest-cov = "*"
+datamodel-code-generator = "*"
+pdoc3 = "*"
+pydocstyle = {extras = ["toml"], version = "*"}
+toml = "*"
 
 [requires]
 python_version = "3.9"

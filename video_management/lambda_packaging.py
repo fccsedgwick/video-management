@@ -3,7 +3,6 @@ import json
 import subprocess
 from os import mkdir
 from os import path
-from os import remove
 from os import walk
 from shutil import move
 from zipfile import ZIP_DEFLATED
@@ -20,7 +19,7 @@ class PackageLambda:
     def __init__(self, construct: Construct) -> None:
         self._construct = construct
 
-    def _package_lambda(self, lambda_location: str, target_zip_name: str):
+    def _package_lambda(self, lambda_location: str, target_zip_name: str, files: list):
         packaging_dir = path.join(lambda_location, ".packaging")
         packages_dir = path.join(packaging_dir, "packages")
         if not path.isdir(packaging_dir):
@@ -34,15 +33,14 @@ class PackageLambda:
             subprocess.run(
                 ["bash", "-c", f"pip install -t '{packages_dir}' '{requirement}'"],
                 shell=True,
-                # stdout=subprocess.DEVNULL,
-                # stderr=subprocess.DEVNULL,
             )  # nosec
         with ZipFile(zip_file, mode="x", compression=ZIP_DEFLATED) as lambda_zip:
             self._zip_dir(packages_dir, lambda_zip)
-            lambda_zip.write(
-                path.join(lambda_location, "lambda_function.py"),
-                arcname="lambda_function.py",
-            )
+            for fn in files:
+                lambda_zip.write(
+                    path.join(lambda_location, fn),
+                    arcname=fn,
+                )
         move(zip_file, target_zip_file)
         return target_zip_file
 
@@ -71,37 +69,45 @@ class PackageLambda:
         return requirement_versions
 
     def create_function(
-        self, lambda_location: str, role: iam.Role, function_name: str
+        self,
+        lambda_location: str,
+        role: iam.Role,
+        function_name: str,
+        cdk_name_prefix: str,
+        function_description: str,
+        files: list[str],
     ) -> lambda_.Function:
-        temp_file = self._package_lambda(lambda_location, f"{function_name}.zip")
+        temp_file = self._package_lambda(lambda_location, f"{function_name}.zip", files)
         signing_profile = signer.SigningProfile(
             self._construct,
-            "SigningProfile",
+            f"{cdk_name_prefix}SigningProfile",
             platform=signer.Platform.AWS_LAMBDA_SHA384_ECDSA,
         )
 
         code_signing_config = lambda_.CodeSigningConfig(
-            self._construct, "CodeSigningConfig", signing_profiles=[signing_profile]
+            self._construct,
+            f"{cdk_name_prefix}CodeSigningConfig",
+            signing_profiles=[signing_profile],
         )
 
         role.add_managed_policy(
             iam.ManagedPolicy.from_managed_policy_arn(
                 self._construct,
-                "PublishingLambddaAWSLambdaBasicExecutionRole",
+                f"{cdk_name_prefix}AWSLambdaBasicExecutionRole",
                 managed_policy_arn="arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
             )
         )
 
         new_lambda = lambda_.Function(
             self._construct,
-            "videoPublishingFunction",
+            cdk_name_prefix,
             code_signing_config=code_signing_config,
             log_retention=RetentionDays.ONE_WEEK,
             runtime=lambda_.Runtime.PYTHON_3_9,
             handler="lambda_function.lambda_handler",
             code=lambda_.Code.from_asset(temp_file),
             role=role,
-            description="Function to move video from uploaded to published bucket",
+            description=function_description,
         )
 
         # remove(temp_file)

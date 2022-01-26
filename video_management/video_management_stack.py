@@ -2,6 +2,7 @@ from aws_cdk import aws_s3 as s3
 from aws_cdk import Stack
 from constructs import Construct
 
+from video_management.video_posting import VideoPosting
 from video_management.video_processing import VideoProcessing
 from video_management.video_storage import VideoStorage
 
@@ -20,4 +21,8 @@ class VideoManagementStack(Stack):
             upload_bucket=video_storage.upload_bucket,
             publish_bucket=video_storage.publish_bucket,
             publish_role=video_storage.publish_role,
+        )
+
+        video_publishing = VideoPosting(
+            self, publish_bucket=video_storage.publish_bucket
         )

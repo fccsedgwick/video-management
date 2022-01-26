@@ -40,6 +40,8 @@ sequenceDiagram
 
 ## Initial setup
 
+### Bootstrap AWS Envrionment(s)
+
 Several steps were taken to set up base infrastructure. See:
 [AWC CDK Pipeline page](https://docs.aws.amazon.com/cdk/v2/guide/cdk_pipeline.html).
 Three AWS accounts in an organization used. (pipeline, development, production). For
@@ -89,4 +91,34 @@ aws_secret_access_key=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 region=us-west-2
 output=json
 role_arn=arn:aws:iam::<dev account>:role/VideoStorage-s3uploadrole3778AE89-1ESA90BJN09LM
+```
+
+### Setup WordPress Account
+
+It is assumed that you already have a WordPress site you will be posting to, if not create that.
+
+1. Create a [developer account](https://developer.wordpress.com/apps) and an application.
+2. Become an author on the site you will be publishing to
+3. Find the Site_id - Retrieve an access token and then get site info by domain name. The Postman collection in
+   `WordPress.postman_collection.json` has the calls needed. The site_id you will need is the `ID` value in the
+   response for the WP Site Info by domain name call. It is beyond the scope of this readme, but you will
+   need to set the following environment variables in Postman for the calls to work:
+   * `client_id` - from step 1 of create an application
+   * `client_secret` - from step 1 of create an application
+   * `username` - from step 1 of create a developer account
+   * `password` - from step 1 of create a developer account
+   * `wordpress_site_domain` - The domain name of the WordPress site
+
+### Add parameter to the AWS account
+
+In Systems Manager -> Parameter Store, create a new parameter. Use Secret String and use the following format:
+```
+{
+    "client_id": <client_id>,
+    "client_secret": "<client_secret>",
+    "username": "<username>",
+    "password": "<password>",
+    "wp_site_id": <site_id>,
+    "post_category": "<tag to add to the post>"
+}
 ```

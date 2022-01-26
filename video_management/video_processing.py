@@ -45,6 +45,9 @@ class VideoProcessing:
             lambda_location="video_management/lambda_functions/publish_lambda/",
             role=publish_role,
             function_name="publish_lambda",
+            cdk_name_prefix="VideoPublishingFunction",
+            function_description="Function to move video from uploaded to published bucket",
+            files=["lambda_function.py"],
         )
         self.publish_lambda.add_environment("SOURCE_BUCKET", upload_bucket.bucket_name)
         self.publish_lambda.add_environment("DEST_BUCKET", publish_bucket.bucket_name)
