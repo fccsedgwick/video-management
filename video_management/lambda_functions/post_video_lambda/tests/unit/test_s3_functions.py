@@ -228,13 +228,3 @@ def test_post_video(monkeypatch):
     assert post_id == wp_mock.post_id
     ssm_stub.assert_no_pending_responses()
     s3_stub.assert_no_pending_responses()
-
-
-def test_network_failures():
-    """Validate system can handle short bouts of network failure."""
-    pass
-
-
-def test_unexpected_aws_failures():
-    """Validate system retries AWS calls on AWS errors that appear to be transient"""
-    pass
