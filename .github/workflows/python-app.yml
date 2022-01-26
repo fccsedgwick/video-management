@@ -22,8 +22,8 @@ jobs:
         pip install pipenv
         pipenv install
         pipenv install requires.io
-        pwd
-        ls -al
+        pipenv run pwd
+        pipenv run ls -al
         pipenv run requires.io update-branch -t ${{ secrets.REQUIRESIO }} -r video_management -n ${{ github.ref_name }} ./Pipfile.lock
         pipenv install --dev
     - name: Test with pytest
