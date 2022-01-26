@@ -1,7 +1,6 @@
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/fccsedgwick/video_management/main.svg)](https://results.pre-commit.ci/latest/github/__user__/__project__/__branch__)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Requires.io (branch)](https://img.shields.io/requires/github/__user__/__project__/__branch__)
 
 # video_management
 
