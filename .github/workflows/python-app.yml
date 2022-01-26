@@ -23,5 +23,5 @@ jobs:
         pipenv install --dev
     - name: Test with pytest
       run: |
-        pytest tests/unit
-        pytest tests/integration
+        pipenv run pytest tests/unit
+        pipenv run pytest tests/integration
