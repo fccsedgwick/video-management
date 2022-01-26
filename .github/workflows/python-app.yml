@@ -20,10 +20,6 @@ jobs:
     - name: Install dependencies
       run: |
         pip install pipenv
-        pipenv install
-        pipenv run pip freeze > requirements.txt
-        pipenv install requires.io
-        pipenv run requires.io update-branch -t ${{ secrets.REQUIRESIO }} -r video_management -n ${{ github.ref_name }} ./requirements.txt
         pipenv install --dev
     - name: Test with pytest
       run: |
