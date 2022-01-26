@@ -1,0 +1,29 @@
+name: Python application
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.9"
+    - name: Install dependencies
+      run: |
+        pipenv install
+        pipenv install requires.io
+        pipenv run requires.io update-branch -t ${{ secrets.REQUIRESIO }} -r ${{ github.repository }} -n ${{ github.ref_name }}
+        pipenv install --dev
+    - name: Test with pytest
+      run: |
+        pytest tests/unit
+        pytest tests/integration
