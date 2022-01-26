@@ -23,5 +23,9 @@ jobs:
         pipenv install --dev
     - name: Test with pytest
       run: |
+        pipenv run ls -al
+        pipenv run ls -al ../
+        echo $PATH
+        echo $PYTHONPATH
         pipenv run pytest ../tests/unit
         pipenv run pytest ../tests/integration
