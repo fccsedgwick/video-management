@@ -41,18 +41,18 @@ repos:
   - id: detect-secrets
     exclude: .pre-commit-config.yaml
 
-- repo: https://github.com/ambv/black
-  rev: f1d4e742c91dd5179d742b0db9293c4472b765f8  # frozen: 21.12b0
+- repo: https://github.com/psf/black
+  rev: fc0be6eb1e2a96091e6f64009ee5e9081bf8b6c6  # frozen: 22.1.0
   hooks:
   - id: black
     language_version: python3.9
 
 - repo: https://github.com/asottile/blacken-docs
-  rev: 505d32bce506de38b525d374490f36346540d5fa  # frozen: v1.12.0
+  rev: 7ae9389351f4090e3993de28015a05a18ca6b8a7  # frozen: v1.12.1
   hooks:
   - id: blacken-docs
 
 - repo: https://github.com/asottile/reorder_python_imports
-  rev: b9af60a0217aedf065f1ce45378d8acb7c002eff  # frozen: v2.6.0
+  rev: 15ae07db4568a7d71591f3e588afa6e22ca2efe7  # frozen: v2.7.1
   hooks:
   - id: reorder-python-imports
