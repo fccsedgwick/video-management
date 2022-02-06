@@ -1,2 +1,0 @@
-[tool.pydocstyle]
-ignore = "D100"
