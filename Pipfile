@@ -18,6 +18,7 @@ mypy = "*"
 flake8-walrus = "*"
 black = "*"
 pre-commit = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.9"
