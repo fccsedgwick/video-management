@@ -19,6 +19,7 @@ flake8-walrus = "*"
 black = "*"
 pre-commit = "*"
 pylint = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.9"
