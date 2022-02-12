@@ -6,6 +6,7 @@ cdk-serverless-clamscan will be used
 """
 # pylint: disable="redefined-outer-name,missing-function-docstring,unused-import"
 from collections import namedtuple
+from typing import List
 
 import pytest
 from aws_cdk.assertions import Match
@@ -66,7 +67,7 @@ ResourceType = namedtuple("ResourceType", ["name", "type"])
 
 
 @pytest.fixture
-def resources_and_types(video_management_template) -> list[ResourceType]:
+def resources_and_types(video_management_template) -> List[ResourceType]:
     template_json = video_management_template.to_json()
     resource_types = [
         ResourceType(name=x, type=template_json["Resources"][x]["Type"])
@@ -76,7 +77,7 @@ def resources_and_types(video_management_template) -> list[ResourceType]:
 
 
 @pytest.fixture
-def non_clamscan_resources_and_types(resources_and_types) -> list[ResourceType]:
+def non_clamscan_resources_and_types(resources_and_types) -> List[ResourceType]:
     non_clamscan_resources_and_types = [
         x for x in resources_and_types if not x.name.startswith("ClamScan")
     ]
