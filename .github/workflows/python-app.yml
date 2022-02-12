@@ -28,3 +28,5 @@ jobs:
         echo $PATH
         echo $PYTHONPATH
         PATH=./:$PATH pipenv run pytest tests/
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
