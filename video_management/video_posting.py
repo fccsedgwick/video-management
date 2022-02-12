@@ -6,10 +6,12 @@ from aws_cdk import aws_s3_notifications
 from aws_cdk import aws_ssm as ssm
 from constructs import Construct
 
-from video_management.lambda_packaging import PackageLambda
+from video_management.create_lambda import PackageLambda
 
 
 class VideoPosting:
+    """IAC to deploy lambda and supporting infrastructure"""
+
     def __init__(
         self,
         construct: Construct,
@@ -64,12 +66,11 @@ class VideoPosting:
         publish_bucket: s3.Bucket,
     ):
         self.posting_lambda = PackageLambda(self._construct).create_function(
-            lambda_location="video_management/lambda_functions/post_video_lambda/",
+            git_repo="fccsedgwick/post-video-lambda",
+            lambda_package="post_video_lambda.zip",
             role=self.posting_role,
-            function_name="post_video_lambda",
             cdk_name_prefix="VideoPostingFunction",
             function_description="Function to post video to WordPress.",
-            files=["lambda_function.py", "models.py", "wordpress.py"],
         )
         self.posting_lambda.add_environment("DEST_BUCKET", publish_bucket.bucket_name)
         # null values here should break pipeline

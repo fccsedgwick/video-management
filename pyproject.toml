@@ -1,5 +1,5 @@
 [tool.pytest.ini_options]
-addopts = "--cov=publish_lambda --cov-report=xml"
+addopts = "--cov=gpg --cov=github --cov=video_management --cov=common_pipeline --cov-report=xml --cov-report=html"
 
 [tool.mypy]
 files = [
@@ -25,3 +25,4 @@ ignore = "D100"
 
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"
+disable = "missing-class-docstring,missing-module-docstring"

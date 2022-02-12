@@ -6,7 +6,7 @@ from cdk_serverless_clamscan import ServerlessClamscan
 from cdk_serverless_clamscan import ServerlessClamscanLoggingProps
 from constructs import Construct
 
-from video_management.lambda_packaging import PackageLambda
+from video_management.create_lambda import PackageLambda
 
 
 class VideoProcessing:
@@ -42,12 +42,11 @@ class VideoProcessing:
         publish_bucket: s3.Bucket,
     ):
         self.publish_lambda = PackageLambda(self._construct).create_function(
-            lambda_location="video_management/lambda_functions/publish_lambda/",
+            git_repo="fccsedgwick/publish-lambda",
+            lambda_package="publish_lambda.zip",
             role=publish_role,
-            function_name="publish_lambda",
             cdk_name_prefix="VideoPublishingFunction",
             function_description="Function to move video from uploaded to published bucket",
-            files=["lambda_function.py"],
         )
         self.publish_lambda.add_environment("SOURCE_BUCKET", upload_bucket.bucket_name)
         self.publish_lambda.add_environment("DEST_BUCKET", publish_bucket.bucket_name)

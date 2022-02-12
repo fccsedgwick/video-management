@@ -8,6 +8,9 @@ aws-cdk-lib = "*"
 constructs = "*"
 python-dotenv = "*"
 cdk-serverless-clamscan = "*"
+requests = "*"
+python-gnupg = "*"
+"github3.py" = "*"
 
 [dev-packages]
 pytest = "*"
@@ -20,6 +23,7 @@ black = "*"
 pre-commit = "*"
 pylint = "*"
 pytest-cov = "*"
+types-requests = "*"
 
 [requires]
 python_version = "3.9"
