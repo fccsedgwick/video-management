@@ -27,5 +27,4 @@ jobs:
         pipenv run ls -al ../
         echo $PATH
         echo $PYTHONPATH
-        PATH=./:$PATH pipenv run pytest tests/unit
-        PATH=./:$PATH pipenv run pytest tests/integration
+        PATH=./:$PATH pipenv run pytest tests/
