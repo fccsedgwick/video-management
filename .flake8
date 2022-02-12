@@ -1,15 +1,15 @@
 [flake8]
 max-line-length = 88
+exclude = .git,__pycache__,.packaging
+max-complexity = 10
 
 # H101: TODO(NAME) format
-# H301: One import per line (to include no parentheticals either)
-# F841: local variable assigned but never used
-ignore = H101,H301,F841
+ignore = H101
 
 per-file-ignores =
     # imported but unused
     __init__.py: F401
     # redefinition of unused, line break before binary operator - conflicts with black
-    tests/*: F401,F811,W503
+    tests/*: F401,F811,W503,E501
 
 extend-ignore = E203

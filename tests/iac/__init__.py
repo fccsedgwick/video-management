@@ -3,8 +3,10 @@ import pytest
 from aws_cdk import App
 from dotenv import load_dotenv
 
-from base_infrastructure import BaseInfrastructureStack
+from common_pipeline.base_infrastructure import BaseInfrastructureStack
 from video_management.video_management_stack import VideoManagementStack
+
+# pylint: disable="redefined-outer-name,missing-function-docstring"
 
 
 @pytest.fixture(scope="module")

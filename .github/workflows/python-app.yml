@@ -27,5 +27,6 @@ jobs:
         pipenv run ls -al ../
         echo $PATH
         echo $PYTHONPATH
-        pipenv run pytest ../tests/unit
-        pipenv run pytest ../tests/integration
+        PATH=./:$PATH pipenv run pytest tests/
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}

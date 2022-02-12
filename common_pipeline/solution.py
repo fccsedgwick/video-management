@@ -1,7 +1,7 @@
 from aws_cdk import Stage
+from base_infrastructure import BaseInfrastructureStack
 from constructs import Construct
 
-from base_infrastructure import BaseInfrastructureStack
 from video_management.video_management_stack import VideoManagementStack
 
 

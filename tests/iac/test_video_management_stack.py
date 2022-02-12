@@ -4,7 +4,9 @@ Given that the ClamScan solution is a CDK Solution Construct and is not managed 
 we will test that only AWS services that were used with v2.0.43 of
 cdk-serverless-clamscan will be used
 """
+# pylint: disable="redefined-outer-name,missing-function-docstring,unused-import"
 from collections import namedtuple
+from typing import List
 
 import pytest
 from aws_cdk.assertions import Match
@@ -65,7 +67,7 @@ ResourceType = namedtuple("ResourceType", ["name", "type"])
 
 
 @pytest.fixture
-def resources_and_types(video_management_template) -> list[ResourceType]:
+def resources_and_types(video_management_template) -> List[ResourceType]:
     template_json = video_management_template.to_json()
     resource_types = [
         ResourceType(name=x, type=template_json["Resources"][x]["Type"])
@@ -75,7 +77,7 @@ def resources_and_types(video_management_template) -> list[ResourceType]:
 
 
 @pytest.fixture
-def non_clamscan_resources_and_types(resources_and_types) -> list[ResourceType]:
+def non_clamscan_resources_and_types(resources_and_types) -> List[ResourceType]:
     non_clamscan_resources_and_types = [
         x for x in resources_and_types if not x.name.startswith("ClamScan")
     ]
@@ -136,23 +138,23 @@ def test_roles_created(non_clamscan_resources_and_types):
     solution_roles = [
         x for x in non_clamscan_resources_and_types if x.type == "AWS::IAM::Role"
     ]
-    assert len(solution_roles) == 5
+    assert len(solution_roles) == 6
     roles_startwith = [
         "s3uploadrole",
         "s3publishrole",
         "CustomS3AutoDeleteObjectsCustomResourceProviderRole",
         "LogRetention",
         "BucketNotificationsHandler",
+        "wppostingrole",
     ]
     for x in solution_roles:
         found = False
-        matching_role = ""
         for y in roles_startwith:
             matching_role = y
-            if x.name.startswith(x):
+            if x.name.startswith(y):
                 found = True
                 break
-        assert x.name.startswith(x)
+        assert found
 
 
 def test_upload_bucket_blocks_public_access(
@@ -217,7 +219,7 @@ def test_clamscan_notifications_to_publishing_lambda(
         x.name
         for x in non_clamscan_resources_and_types
         if x.type == "AWS::Lambda::Function"
-        and x.name.startswith("videoPublishingFunction")
+        and x.name.startswith("VideoPublishingFunction")
     ]
     assert len(publishing_lambdas) == 1
     publishing_lambda = publishing_lambdas[0]
@@ -247,47 +249,47 @@ def test_clamscan_notifications_to_publishing_lambda(
     )
 
 
-# def test_published_bucket_notifications_to_posting_lambda(
-#     non_clamscan_resources_and_types, video_management_template
-# ):
-#     # There is a notification
-#     published_video_notifications = [
-#         x.name
-#         for x in non_clamscan_resources_and_types
-#         if x.type == "Custom::S3BucketNotifications"
-#         and x.name.startswith("PublishedVideosNotifications")
-#     ]
-#     assert len(published_video_notifications) == 1
+def test_published_bucket_notifications_to_posting_lambda(
+    non_clamscan_resources_and_types, video_management_template
+):
+    # There is a notification
+    published_video_notifications = [
+        x.name
+        for x in non_clamscan_resources_and_types
+        if x.type == "Custom::S3BucketNotifications"
+        and x.name.startswith("PublishedVideosNotifications")
+    ]
+    assert len(published_video_notifications) == 1
 
-#     publish_bucket = [
-#         x.name
-#         for x in non_clamscan_resources_and_types
-#         if x.type == "AWS::S3::Bucket" and x.name.startswith("PublishedVideos")
-#     ][0]
+    publish_bucket = [
+        x.name
+        for x in non_clamscan_resources_and_types
+        if x.type == "AWS::S3::Bucket" and x.name.startswith("PublishedVideos")
+    ][0]
 
-#     post_video_lambdas = [
-#         x.name
-#         for x in resources_and_types
-#         if x.type == "AWS::Lambda::Function"
-#         and x.name.startswith("PostVideos")
-#     ]
-#     assert len(post_video_lambdas) == 1
-#     post_video_lambda = post_video_lambdas[0]
+    post_video_lambdas = [
+        x.name
+        for x in non_clamscan_resources_and_types
+        if x.type == "AWS::Lambda::Function"
+        and x.name.startswith("VideoPostingFunction")
+    ]
+    assert len(post_video_lambdas) == 1
+    post_video_lambda = post_video_lambdas[0]
 
-#     # The notification is for object uploads and sends to the posting lambda
-#     video_management_template.has_resource_properties(
-#         "Custom::S3BucketNotifications",
-#         {
-#             "ServiceToken": {"Fn::GetAtt": [Match.any_value(), "Arn"]},
-#             "BucketName": {"Ref": publish_bucket},
-#             "NotificationConfiguration": {
-#                 "LambdaFunctionConfigurations": [
-#                     {
-#                         "Events": ["s3:ObjectCreated:*"],
-#                         "LambdaFunctionArn": {"Fn::GetAtt": [post_video_lambda, "Arn"]},
-#                     }
-#                 ]
-#             },
-#             "Managed": True,
-#         },
-#     )
+    # The notification is for object uploads and sends to the posting lambda
+    video_management_template.has_resource_properties(
+        "Custom::S3BucketNotifications",
+        {
+            "ServiceToken": {"Fn::GetAtt": [Match.any_value(), "Arn"]},
+            "BucketName": {"Ref": publish_bucket},
+            "NotificationConfiguration": {
+                "LambdaFunctionConfigurations": [
+                    {
+                        "Events": ["s3:ObjectCreated:*"],
+                        "LambdaFunctionArn": {"Fn::GetAtt": [post_video_lambda, "Arn"]},
+                    }
+                ]
+            },
+            "Managed": True,
+        },
+    )

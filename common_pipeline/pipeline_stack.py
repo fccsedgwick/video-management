@@ -6,8 +6,8 @@ from aws_cdk.pipelines import ManualApprovalStep
 from aws_cdk.pipelines import ShellStep
 from constructs import Construct
 
-from models import Account
-from solution import SolutionEnvironmentStage
+from common_pipeline.models import Account
+from common_pipeline.solution import SolutionEnvironmentStage
 
 
 class PipelineStack(Stack):

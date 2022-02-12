@@ -1,3 +1,4 @@
+# pylint: disable="redefined-outer-name,missing-function-docstring,unused-import"
 from tests.iac import base_infrastructure_stack
 from tests.iac import base_infrastructure_template
 from tests.iac import module_app

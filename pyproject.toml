@@ -1,0 +1,28 @@
+[tool.pytest.ini_options]
+addopts = "--cov=gpg --cov=github --cov=video_management --cov=common_pipeline --cov-report=xml --cov-report=html"
+
+[tool.mypy]
+files = [
+    "app.py",
+    "common_pipeline/*.py",
+    "video_management/*.py",
+    "tests/*.py"
+]
+warn_redundant_casts = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = ["common_pipeline", "video_management"]
+disallow_any_decorated = true
+disallow_any_explicit = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+warn_unreachable = true
+warn_unused_ignores = true
+
+[tool.pydocstyle]
+ignore = "D100"
+
+[tool.pylint.'MESSAGES CONTROL']
+extension-pkg-whitelist = "pydantic"
+disable = "missing-class-docstring,missing-module-docstring"
