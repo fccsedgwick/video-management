@@ -30,7 +30,7 @@ class PipelineStack(Stack):
             synth=ShellStep(
                 "Synth",
                 input=CodePipelineSource.git_hub(
-                    "fccsedgwick/video_management", "main"
+                    "fccsedgwick/video-management", "main"
                 ),
                 commands=[
                     "npm install -g aws-cdk",
