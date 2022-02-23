@@ -19,6 +19,7 @@ jobs:
       - name: Build
         run: |-
           npm install -g aws-cdk
+          python --version
           pip install pipenv
           pipenv install
           pipenv run cdk synth
