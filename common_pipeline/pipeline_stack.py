@@ -1,9 +1,8 @@
 from aws_cdk import Environment
 from aws_cdk import Stack
-from aws_cdk.pipelines import CodePipeline
-from aws_cdk.pipelines import CodePipelineSource
 from aws_cdk.pipelines import ManualApprovalStep
 from aws_cdk.pipelines import ShellStep
+from cdk_pipelines_github import GitHubWorkflow
 from constructs import Construct
 
 from common_pipeline.models import Account
@@ -20,18 +19,13 @@ class PipelineStack(Stack):
             name="prod",
             id="308828263283",
             region="us-east-2",
-            manually_approve_change=True,
         )
 
-        pipeline = CodePipeline(
+        pipeline = GitHubWorkflow(
             self,
             "Pipeline",
-            cross_account_keys=True,
             synth=ShellStep(
                 "Synth",
-                input=CodePipelineSource.git_hub(
-                    "fccsedgwick/video-management", "main"
-                ),
                 commands=[
                     "npm install -g aws-cdk",
                     "pipenv install",
@@ -41,15 +35,13 @@ class PipelineStack(Stack):
         )
 
         for account in accounts.values():
+            pipeline.git_hub_action_role_arn = (
+                f"arn:aws:iam::{account.id}:role/GitHubActionRole"
+            )
             stage = SolutionEnvironmentStage(
                 self,
                 f"{account.name}-{account.region}-SolutionEnvironment",
                 env=Environment(account=account.id, region=account.region),
             )
 
-            if account.manually_approve_change:
-                pre = [ManualApprovalStep(f"PromoteTo{account.name}")]
-            else:
-                pre = None
-
-            pipeline.add_stage(stage, pre=pre)
+            pipeline.add_stage(stage)
