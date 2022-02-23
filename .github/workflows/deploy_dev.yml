@@ -1,4 +1,4 @@
-name: deploy
+name: deploy_dev
 on:
   push:
     branches:
@@ -19,6 +19,7 @@ jobs:
       - name: Build
         run: |-
           npm install -g aws-cdk
+          pip install pipenv
           pipenv install
           pipenv run cdk synth
       - name: Upload cdk.out
