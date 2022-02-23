@@ -11,6 +11,7 @@ cdk-serverless-clamscan = "*"
 requests = "*"
 python-gnupg = "*"
 "github3.py" = "*"
+cdk-pipelines-github = "*"
 
 [dev-packages]
 pytest = "*"
