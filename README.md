@@ -134,3 +134,15 @@ String and use the following format:
     "post_category": "<tag to add to the post>"
 }
 ```
+
+## Deploying stacks
+
+Deploying stacks is completed by cdk synth & cdk deploy. Given that this
+repository has multiple CDK stacks, the deploy command will take the stack
+as an argument. After the base stack is installed, you will likely only need
+to update the VideoManagementStack. Additionally, you will want to provide
+the profile for the account to deploy the stack into if you have multiple
+AWS accounts. For example, assuming that you have installed cdk as a local
+module, running `npx cdk deploy VideoManagementStack --profile fccsedgwickdev`
+will deploy the VideoManagementStack to the account where the profile
+fccsedgwickdev points to.

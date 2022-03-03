@@ -22,6 +22,7 @@ class PackageLambda:
         role: iam.Role,
         cdk_name_prefix: str,
         function_description: str,
+        handler_prefix: str = None,
     ) -> lambda_.Function:
         """Create CDK function to deploy lambda
 
@@ -65,13 +66,17 @@ class PackageLambda:
             )
         )
 
+        handler = "lambda_function.lambda_handler"
+        if handler_prefix is not None:
+            handler = f"{handler_prefix}.{handler}"
+
         new_lambda = lambda_.Function(
             self._construct,
             cdk_name_prefix,
             code_signing_config=code_signing_config,
             log_retention=RetentionDays.ONE_WEEK,
             runtime=lambda_.Runtime.PYTHON_3_9,
-            handler="lambda_function.lambda_handler",
+            handler=handler,
             code=lambda_.Code.from_asset(package),
             role=role,
             description=function_description,
