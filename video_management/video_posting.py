@@ -71,6 +71,7 @@ class VideoPosting:
             role=self.posting_role,
             cdk_name_prefix="VideoPostingFunction",
             function_description="Function to post video to WordPress.",
+            handler_prefix="post_video_lambda",
         )
         self.posting_lambda.add_environment("DEST_BUCKET", publish_bucket.bucket_name)
         # null values here should break pipeline
