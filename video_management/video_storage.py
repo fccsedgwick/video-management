@@ -1,6 +1,8 @@
 import json
 from os import getenv
 
+from aws_cdk import aws_cloudfront
+from aws_cdk import aws_cloudfront_origins
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_ssm as ssm
@@ -15,6 +17,7 @@ class VideoStorage:
         self._create_iam()
         self._create_upload_bucket(logging_bucket)
         self._create_publish_bucket(logging_bucket)
+        self._create_cdn(logging_bucket)
         self._create_ssm_parameters()
 
     def _create_iam(self):
@@ -67,14 +70,20 @@ class VideoStorage:
             enforce_ssl=True,
             server_access_logs_bucket=logging_bucket,
             server_access_logs_prefix="s3-publish-bucket-videos",
+            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
         )
 
-        self.publish_bucket.add_to_resource_policy(
-            iam.PolicyStatement(
-                actions=["s3:GetObject"],
-                resources=[self.publish_bucket.arn_for_objects("*")],
-                principals=[iam.StarPrincipal()],
-            )
-        )
         self.publish_bucket.grant_put(self.publish_role)
         self.publish_bucket.grant_read(self.publish_role)
+
+    def _create_cdn(self, logging_bucket: s3.Bucket):
+        self.cloudfront = aws_cloudfront.Distribution(
+            self._construct,
+            "PublishedBucketCDN",
+            default_behavior=aws_cloudfront.BehaviorOptions(
+                origin=aws_cloudfront_origins.S3Origin(self.publish_bucket)
+            ),
+            enable_logging=True,
+            log_bucket=logging_bucket,
+            log_file_prefix="cdn/",
+        )
