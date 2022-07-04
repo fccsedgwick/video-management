@@ -4,9 +4,6 @@ from constructs import Construct
 
 from video_management.video_storage import VideoStorage
 
-# from video_management.video_posting import VideoPosting
-# from video_management.video_processing import VideoProcessing
-
 
 class VideoManagementStack(Stack):
     def __init__(
