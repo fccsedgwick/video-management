@@ -8,8 +8,6 @@ aws-cdk-lib = "*"
 constructs = "*"
 python-dotenv = "*"
 requests = "*"
-python-gnupg = "*"
-"github3.py" = "*"
 
 [dev-packages]
 pytest = "*"

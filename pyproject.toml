@@ -1,5 +1,5 @@
 [tool.pytest.ini_options]
-addopts = "--cov=gpg --cov=github --cov=video_management --cov=common_pipeline --cov-report=xml --cov-report=html"
+addopts = "--cov=gpg --cov=video_management --cov=common_pipeline --cov-report=xml --cov-report=html"
 
 [tool.mypy]
 files = [
